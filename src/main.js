@@ -5,7 +5,11 @@ import genres from './util/genres';
 import MovieList from './components/MovieList.vue';
 import MovieFilter from './components/MovieFilter.vue';
 
-import VueResource from 'vue-resource'
+import moment from 'moment-timezone';
+moment.tz.setDefault("UTC");
+Object.defineProperty(Vue.prototype, '$moment', { get() {return this.$root.moment} });
+
+import VueResource from 'vue-resource';
 Vue.use(VueResource);
 
 new Vue({
@@ -14,15 +18,19 @@ new Vue({
     data:{
         genre:[],
         time: [],
-        movies: []
+        movies: [],
+        moment
     },
     methods:{
+
         checkFilter(category, title, checked){
+
             if(checked)
             {
                 this[category].push(title);
             }
             else{
+
                 let index = this[category].indexOf(title);
                 if(index > -1)
                 {
@@ -35,7 +43,9 @@ new Vue({
         MovieList,
         MovieFilter
     },
+
     created(){
+        //load data
         this.$http.get('/api').then(response => {
             this.movies = response.data;
         });
