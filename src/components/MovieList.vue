@@ -1,11 +1,18 @@
 
 <template>
     <div id='movie-list'>
+        <div>{{filteredMovies.length}}</div>
         <div v-if="filteredMovies.length">
-            <movie-item v-for="item in filteredMovies" v-bind:movie="item.movie"></movie-item>
+            <movie-item  v-for="item in filteredMovies"
+                v-bind:key="item.movie.id" 
+                v-bind:movie="item.movie" 
+                v-bind:sessions="item.sessions"
+                v-bind:day="day"
+                v-bind:time="time"
+                ></movie-item>
         </div>
         <div v-else-if="movies.length" class="no-results">
-            No results
+            {{ noResults }}
         </div>
         <div v-else class="no-results">
             Loading..
@@ -15,12 +22,14 @@
 
 <script>
 
-import genres from '../util/genres';
+import times from '../util/times'
+import genres from '../util/genres'
+
 import MovieItem from './MovieItem.vue'
 
 export default{
   
-        props: ['genre', 'time', 'movies'], 
+        props: ['genre', 'time', 'movies', 'day'], 
         methods:{
 
             moviePassesGenreFilter(movie){
@@ -43,13 +52,39 @@ export default{
 
                     return matched;
                 }
+            },
+
+            sessionPassesTimeFilter(session){
+                if(!this.day.isSame(this.$moment(session.time), 'day'))
+                {
+                    return false; //not today's date
+                }
+                else if((this.time.length === 0) || (this.time.length === 2))
+                {
+                    return true;
+                }else if(this.time[0] === times.AFTER_6PM)
+                {
+                    return this.$moment(session.time).hour() >= 18;
+                }
+                else{
+                    return this.$moment(session.time).hour() <= 18;
+                }
             }
         },
 
         computed:{
 
             filteredMovies(){
-                return this.movies.filter(this.moviePassesGenreFilter);
+                return this.movies.filter(this.moviePassesGenreFilter)
+                                    .filter(m => m.sessions.find(this.sessionPassesTimeFilter))
+            },
+
+            noResults()
+            {
+                let times = this.time.join(', ');
+                let genres = this.genre.join(', ');
+                
+                return `No results for ${times} ${ times.length && genres.length ? ', ' : '' } ${genres}`;
             }
         },
 
