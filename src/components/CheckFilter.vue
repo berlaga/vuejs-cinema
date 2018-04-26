@@ -22,7 +22,7 @@ export default{
             checkFilter()
             {
                 this.checked = !this.checked;                            
-                this.$emit('check-filter', this.category, this.title, this.checked);
+                this.$bus.$emit('check-filter', this.category, this.title, this.checked);
             }
         }
 
