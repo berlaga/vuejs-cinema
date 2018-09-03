@@ -1,15 +1,30 @@
 
 <template>
-    <div>Hello world</div>
+    <div id="delail" v-if="movie">
+        <movie-item v-bind:movie="movie.movie" v-bind:sessions="[]"></movie-item>
+    </div>
 </template>
 
 <script>
 
+    import MovieItem from "./MovieItem.vue";
+
     export default{
 
-        created(){
+        props: ['movies'],
 
-            console.log(this.$route);
+        computed:{
+
+            movie(){
+
+                let movie = this.movies.find(movie => movie.id === this.$route.params.id);
+
+                return movie ? movie : null;
+            }
+        },
+
+        components:{
+            MovieItem
         }
     }
 
